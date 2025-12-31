@@ -2931,7 +2931,7 @@ def http_crawl(
 			continue
 
 		# Parse httpx output
-		host = line.get('host', '')
+		host_ip = line.get('host_ip', '')
 		content_length = line.get('content_length', 0)
 		http_status = line.get('status_code')
 		http_url, is_redirect = extract_httpx_url(line)
@@ -3014,9 +3014,9 @@ def http_crawl(
 			add_meta_info=False)
 
 		# Add IP object for host in DB
-		if host:
+		if host_ip:
 			ip, created = save_ip_address(
-				host,
+				host_ip,
 				subdomain,
 				subscan=self.subscan,
 				cdn=cdn)
