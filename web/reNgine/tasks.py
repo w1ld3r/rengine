@@ -503,7 +503,7 @@ def subdomain_discovery(
 			elif tool == 'chaos':
 				# we need to find api key if not ignore
 				chaos_key = get_chaos_key()
-				if not chaos_key:
+				if not chaos_key or chaos_key.key == "None":
 					logger.error('Chaos API key not found. Skipping.')
 					continue
 				results_file = self.results_dir + '/subdomains_chaos.txt'
