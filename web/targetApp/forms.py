@@ -1,6 +1,8 @@
 from django import forms
-from .models import *
 from reNgine.validators import validate_domain
+
+from .models import *
+
 
 class AddTargetForm(forms.Form):
     name = forms.CharField(
@@ -22,7 +24,6 @@ class AddTargetForm(forms.Form):
                 "placeholder": "Target Description"
             }
         ))
-
     h1_team_handle = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -32,18 +33,21 @@ class AddTargetForm(forms.Form):
                 "placeholder": "team_handle"
             }
         ))
-
-    def clean_name(self):
-        data = self.cleaned_data['name']
-        if Domain.objects.filter(name=data).count() > 0:
-            raise forms.ValidationError("{} target/domain already exists".format(data))
-        return data
-
+    organization_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control form-control-lg",
+                "id": "organizationName",
+                "placeholder": "Organization Name"
+            }
+        ))
 
 class AddOrganizationForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        project = kwargs.pop('project')
         super(AddOrganizationForm, self).__init__(*args, **kwargs)
-        self.fields['domains'].choices = [(domain.id, domain.name) for domain in Domain.objects.all()]
+        self.fields['domains'].choices = [(domain.id, domain.name) for domain in Domain.objects.filter(project__slug=project) if not domain.get_organization()]
 
     name = forms.CharField(
         required=True,
@@ -82,7 +86,7 @@ class AddOrganizationForm(forms.Form):
     def clean_name(self):
         data = self.cleaned_data['name']
         if Organization.objects.filter(name=data).count() > 0:
-            raise forms.ValidationError("{} Organization already exists".format(data))
+            raise forms.ValidationError(f"{data} Organization already exists")
         return data
 
 

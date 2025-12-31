@@ -1,8 +1,6 @@
-import os
-import random
 import logging
-import sys
-import subprocess
+import secrets
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +22,11 @@ def first_run(secret_file, base_dir):
             secret = open(secret_file, 'w')
             secret.write(secret_key)
             secret.close()
-        except IOError:
-            raise Exception('Secret file generation failed' % secret_file)
+        except OSError:
+            raise Exception(f'Secret file generation failed. Path: {secret_file}')
     return secret_key
 
 
-
 def get_random():
-    choice = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-    return ''.join([random.SystemRandom().choice(choice) for i in range(50)])
+    charlist = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    return ''.join(secrets.choice(charlist) for _ in range(64))
