@@ -3932,7 +3932,8 @@ def fetch_whois_data_using_netlas(target):
 	command = f'netlas host {target} -f json'
 	netlas_key = get_netlas_key()
 	if netlas_key:
-		command += f' -a {netlas_key}'
+		if netlas_key.key and netlas_key.key != "None":
+			command += f' -a {netlas_key}'
 
 	try:
 		_, result = run_command(command, remove_ansi_sequence=True)
