@@ -494,7 +494,9 @@ def subdomain_discovery(
 				results_file = self.results_dir + '/subdomains_netlas.txt'
 				cmd = f'netlas search -d domain -i domain domain:"*.{host}" -f json'
 				netlas_key = get_netlas_key()
-				cmd += f' -a {netlas_key}' if netlas_key else ''
+				if netlas_key:
+					if netlas_key.key and netlas_key.key != "None":
+						cmd += f' -a {netlas_key}' 
 				cmd_extract = f"grep -oE '([a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?\.)+{host}'"
 				cmd += f' | {cmd_extract} > {results_file}'
 
