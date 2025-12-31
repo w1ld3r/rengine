@@ -1,14 +1,67 @@
-from rest_framework import serializers
-from startScan.models import *
-from reNgine.common_func import *
-from targetApp.models import *
-from scanEngine.models import *
 from dashboard.models import *
-from recon_note.models import *
-
+from django.contrib.humanize.templatetags.humanize import (naturalday, naturaltime)
 from django.db.models import F, JSONField, Value
-from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+from django.forms.models import model_to_dict
+from recon_note.models import *
+from reNgine.common_func import *
+from rest_framework import serializers
+from scanEngine.models import *
+from startScan.models import *
+from targetApp.models import *
+from dashboard.models import InAppNotification
 
+
+class HackerOneProgramAttributesSerializer(serializers.Serializer):
+	"""
+		Serializer for HackerOne Program
+		IMP: THIS is not a model serializer, programs will not be stored in db
+		due to ever changing nature of programs, rather cache will be used on these serializers
+	"""
+	handle = serializers.CharField(required=False)
+	name = serializers.CharField(required=False)
+	currency = serializers.CharField(required=False)
+	submission_state = serializers.CharField(required=False)
+	triage_active = serializers.BooleanField(allow_null=True, required=False)
+	state = serializers.CharField(required=False)
+	started_accepting_at = serializers.DateTimeField(required=False)
+	bookmarked = serializers.BooleanField(required=False)
+	allows_bounty_splitting = serializers.BooleanField(required=False)
+	offers_bounties = serializers.BooleanField(required=False)
+	open_scope = serializers.BooleanField(allow_null=True, required=False)
+	fast_payments = serializers.BooleanField(allow_null=True, required=False)
+	gold_standard_safe_harbor = serializers.BooleanField(allow_null=True, required=False)
+
+	def to_representation(self, instance):
+		return {key: value for key, value in instance.items()}
+
+
+class HackerOneProgramSerializer(serializers.Serializer):
+	id = serializers.CharField()
+	type = serializers.CharField()
+	attributes = HackerOneProgramAttributesSerializer()
+
+
+
+class InAppNotificationSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = InAppNotification
+		fields = [
+			'id', 
+			'title', 
+			'description', 
+			'icon', 
+			'is_read', 
+			'created_at', 
+			'notification_type', 
+			'status',
+			'redirect_link',
+			'open_in_new_tab',
+			'project'
+		]
+		read_only_fields = ['id', 'created_at']
+
+	def get_project_name(self, obj):
+		return obj.project.name if obj.project else None
 
 
 class SearchHistorySerializer(serializers.ModelSerializer):
@@ -69,12 +122,13 @@ class SubScanResultSerializer(serializers.ModelSerializer):
 		model = SubScan
 		fields = [
 			'id',
+			'type',
 			'subdomain_name',
 			'start_scan_date',
 			'stop_scan_date',
 			'scan_history',
 			'subdomain',
-			'celery_id',
+			'celery_ids',
 			'status',
 			'subdomain_name',
 			'task',
@@ -85,18 +139,7 @@ class SubScanResultSerializer(serializers.ModelSerializer):
 		return subscan.subdomain.name
 
 	def get_task_name(self, subscan):
-		if subscan.port_scan:
-			return 'port_scan'
-		elif subscan.fetch_url:
-			return 'fetch_url'
-		elif subscan.dir_file_fuzz:
-			return 'dir_file_fuzz'
-		elif subscan.vulnerability_scan:
-			return 'vulnerability_scan'
-		elif subscan.osint:
-			return 'osint'
-		else:
-			return 'Unknown'
+		return subscan.type
 
 	def get_engine_name(self, subscan):
 		if subscan.engine:
@@ -145,22 +188,40 @@ class SubScanSerializer(serializers.ModelSerializer):
 		model = SubScan
 		fields = '__all__'
 
-	def get_subdomain_name(self, sub_scan):
-		return sub_scan.subdomain.name
+	def get_subdomain_name(self, subscan):
+		return subscan.subdomain.name
 
-	def get_total_time_taken(self, sub_scan):
-		return sub_scan.get_total_time_taken()
+	def get_total_time_taken(self, subscan):
+		return subscan.get_total_time_taken()
 
-	def get_elapsed_time(self, sub_scan):
-		return sub_scan.get_elapsed_time()
+	def get_elapsed_time(self, subscan):
+		return subscan.get_elapsed_time()
 
-	def get_completed_ago(self, sub_scan):
-		return sub_scan.get_completed_ago()
+	def get_completed_ago(self, subscan):
+		return subscan.get_completed_ago()
 
-	def get_engine_name(self, sub_scan):
-		if sub_scan.engine:
-			return sub_scan.engine.engine_name
+	def get_engine_name(self, subscan):
+		if subscan.engine:
+			return subscan.engine.engine_name
 		return ''
+
+
+class CommandSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Command
+		fields = '__all__'
+		depth = 1
+
+
+class MinimalUserSerializer(serializers.ModelSerializer):
+	"""
+		Serializer for User model
+		Purpose of this serializer is to return minimal information about user
+		Related to report by @RaDiTZz0
+	"""
+	class Meta:
+		model = User
+		fields = ['username']
 
 
 class ScanHistorySerializer(serializers.ModelSerializer):
@@ -173,10 +234,31 @@ class ScanHistorySerializer(serializers.ModelSerializer):
 	elapsed_time = serializers.SerializerMethodField('get_elapsed_time')
 	completed_ago = serializers.SerializerMethodField('get_completed_ago')
 	organizations = serializers.SerializerMethodField('get_organizations')
+	initiated_by = MinimalUserSerializer(read_only=True)
 
 	class Meta:
 		model = ScanHistory
-		fields = '__all__'
+		fields = [
+			'id',
+			'subdomain_count',
+			'endpoint_count',
+			'vulnerability_count',
+			'current_progress',
+			'completed_time',
+			'elapsed_time',
+			'completed_ago',
+			'organizations',
+			'start_scan_date',
+			'scan_status',
+			'results_dir',
+			'celery_ids',
+			'tasks',
+			'stop_scan_date',
+			'error_message',
+			'domain',
+			'scan_type',
+			'initiated_by'
+		]
 		depth = 1
 
 	def get_subdomain_count(self, scan_history):
@@ -216,9 +298,20 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 class EngineSerializer(serializers.ModelSerializer):
 
+	tasks = serializers.SerializerMethodField('get_tasks')
+
+	def get_tasks(self, instance):
+		return instance.tasks
+
 	class Meta:
 		model = EngineType
-		fields = '__all__'
+		fields = [
+			'id',
+			'default_engine',
+			'engine_name',
+			'yaml_configuration',
+			'tasks'
+		]
 
 
 class OrganizationTargetsSerializer(serializers.ModelSerializer):
@@ -341,11 +434,14 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
 			return "Interesting"
 
 	def get_children(self, subdomain_name):
-		subdomain = Subdomain.objects.filter(
-			scan_history=self.context.get('scan_history')).filter(
-			name=subdomain_name)
+		scan_history = self.context.get('scan_history')
+		subdomains = (
+			Subdomain.objects
+			.filter(scan_history=scan_history)
+			.filter(name=subdomain_name)
+		)
 
-		ips = IpAddress.objects.filter(ip_addresses__in=subdomain)
+		ips = IpAddress.objects.filter(ip_addresses__in=subdomains)
 		ip_serializer = VisualiseIpSerializer(ips, many=True)
 
 		# endpoint = EndPoint.objects.filter(
@@ -353,12 +449,14 @@ class VisualiseSubdomainSerializer(serializers.ModelSerializer):
 		#     subdomain__name=subdomain_name)
 		# endpoint_serializer = VisualiseEndpointSerializer(endpoint, many=True)
 
-		technologies = Technology.objects.filter(technologies__in=subdomain)
+		technologies = Technology.objects.filter(technologies__in=subdomains)
 		tech_serializer = VisualiseTechnologySerializer(technologies, many=True)
 
-		vulnerability = Vulnerability.objects.filter(
-			scan_history=self.context.get('scan_history')
-		).filter(subdomain=subdomain_name)
+		vulnerability = (
+			Vulnerability.objects
+			.filter(scan_history=scan_history)
+			.filter(subdomain=subdomain_name)
+		)
 
 		return_data = []
 		if ip_serializer.data:
@@ -494,7 +592,7 @@ class VisualiseDorkSerializer(serializers.ModelSerializer):
 		return dork.type
 
 	def get_description(self, dork):
-		return dork.description
+		return dork.type
 
 	def get_http_url(self, dork):
 		return dork.url
@@ -538,8 +636,9 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
 
 		subdomain = Subdomain.objects.filter(scan_history=history)
 		subdomain_serializer = VisualiseSubdomainSerializer(
-			subdomain, many=True, context={
-				'scan_history': history})
+			subdomain,
+			many=True,
+			context={'scan_history': history})
 
 		email = Email.objects.filter(emails__in=scan_history)
 		email_serializer = VisualiseEmailSerializer(email, many=True)
@@ -556,53 +655,77 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
 		return_data = []
 
 		if subdomain_serializer.data:
-			return_data.append({'description': 'Subdomains', 'children': subdomain_serializer.data})
+			return_data.append({
+				'description': 'Subdomains',
+				'children': subdomain_serializer.data})
 
 		if email_serializer.data or employee_serializer.data or dork_serializer.data or metainfo:
 			osint_data = []
 			if email_serializer.data:
-				osint_data.append({'description': 'Emails', 'children': email_serializer.data})
+				osint_data.append({
+					'description': 'Emails',
+					'children': email_serializer.data})
 			if employee_serializer.data:
-				osint_data.append({'description': 'Employees', 'children': employee_serializer.data})
+				osint_data.append({
+					'description': 'Employees',
+					'children': employee_serializer.data})
 			if dork_serializer.data:
-				osint_data.append({'description': 'Dorks', 'children': dork_serializer.data})
+				osint_data.append({
+					'description': 'Dorks',
+					'children': dork_serializer.data})
 
 			if metainfo:
 				metainfo_data = []
-				usernames = metainfo.annotate(
-					description=F('author')
-				).values('description').distinct().annotate(
-					children=Value(
-						[], output_field=JSONField())
-					).filter(author__isnull=False)
+				usernames = (
+					metainfo
+					.annotate(description=F('author'))
+					.values('description')
+					.distinct()
+					.annotate(children=Value([], output_field=JSONField()))
+					.filter(author__isnull=False)
+				)
 
 				if usernames:
-					metainfo_data.append({'description': 'Usernames', 'children': usernames})
+					metainfo_data.append({
+						'description': 'Usernames',
+						'children': usernames})
 
-				software = metainfo.annotate(
-					description=F('producer')
-				).values('description').distinct().annotate(
-					children=Value(
-						[], output_field=JSONField())
-					).filter(producer__isnull=False)
+				software = (
+					metainfo
+					.annotate(description=F('producer'))
+					.values('description')
+					.distinct()
+					.annotate(children=Value([], output_field=JSONField()))
+					.filter(producer__isnull=False)
+				)
 
 				if software:
-					metainfo_data.append({'description': 'Software', 'children': software})
+					metainfo_data.append({
+						'description': 'Software',
+						'children': software})
 
-				os = metainfo.annotate(
-					description=F('os')
-				).values('description').distinct().annotate(
-					children=Value(
-						[], output_field=JSONField())
-					).filter(os__isnull=False)
+				os = (
+					metainfo
+					.annotate(description=F('os'))
+					.values('description')
+					.distinct()
+					.annotate(children=Value([], output_field=JSONField()))
+					.filter(os__isnull=False)
+				)
 
 				if os:
-					metainfo_data.append({'description': 'OS', 'children': os})
+					metainfo_data.append({
+						'description': 'OS',
+						'children': os})
 
 			if metainfo:
-				osint_data.append({'description':'Metainfo', 'children': metainfo_data})
+				osint_data.append({
+					'description':'Metainfo',
+					'children': metainfo_data})
 
-			return_data.append({'description':'OSINT', 'children': osint_data})
+			return_data.append({
+				'description':'OSINT',
+				'children': osint_data})
 
 		return return_data
 
@@ -610,7 +733,6 @@ class VisualiseDataSerializer(serializers.ModelSerializer):
 class SubdomainChangesSerializer(serializers.ModelSerializer):
 
 	change = serializers.SerializerMethodField('get_change')
-
 	is_interesting = serializers.SerializerMethodField('get_is_interesting')
 
 	class Meta:
@@ -621,9 +743,11 @@ class SubdomainChangesSerializer(serializers.ModelSerializer):
 		return Subdomain.change
 
 	def get_is_interesting(self, Subdomain):
-		return get_interesting_subdomains(
-			Subdomain.scan_history.id).filter(
-			name=Subdomain.name).exists()
+		return (
+			get_interesting_subdomains(Subdomain.scan_history.id)
+			.filter(name=Subdomain.name)
+			.exists()
+		)
 
 
 class EndPointChangesSerializer(serializers.ModelSerializer):
@@ -781,9 +905,12 @@ class SubdomainSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 	def get_is_interesting(self, subdomain):
-		return get_interesting_subdomains(
-			subdomain.scan_history.id).filter(
-			name=subdomain.name).exists()
+		scan_id = subdomain.scan_history.id if subdomain.scan_history else None
+		return (
+			get_interesting_subdomains(scan_id)
+			.filter(name=subdomain.name)
+			.exists()
+		)
 
 	def get_endpoint_count(self, subdomain):
 		return subdomain.get_endpoint_count
@@ -810,7 +937,7 @@ class SubdomainSerializer(serializers.ModelSerializer):
 		return subdomain.get_subscan_count
 
 	def get_todos_count(self, subdomain):
-		return len(subdomain.get_todos)
+		return len(subdomain.get_todos.filter(is_done=False))
 
 	def get_vuln_count(self, obj):
 		try:
@@ -821,7 +948,7 @@ class SubdomainSerializer(serializers.ModelSerializer):
 
 class EndpointSerializer(serializers.ModelSerializer):
 
-	technologies = TechnologySerializer(many=True)
+	techs = TechnologySerializer(many=True)
 
 	class Meta:
 		model = EndPoint
@@ -838,8 +965,8 @@ class EndpointOnlyURLsSerializer(serializers.ModelSerializer):
 class VulnerabilitySerializer(serializers.ModelSerializer):
 
 	discovered_date = serializers.SerializerMethodField()
-
 	severity = serializers.SerializerMethodField()
+	scan_history = serializers.SerializerMethodField()
 
 	def get_discovered_date(self, Vulnerability):
 		return Vulnerability.discovered_date.strftime("%b %d, %Y %H:%M")
@@ -859,6 +986,16 @@ class VulnerabilitySerializer(serializers.ModelSerializer):
 			return "Unknown"
 		else:
 			return "Unknown"
+		
+	def get_scan_history(self, vulnerability):
+		scan_history_dict = {}
+		scan_history = vulnerability.scan_history
+		if scan_history:
+			# convert model to dict then use MinimalSerializer to get only username
+			scan_history_dict = model_to_dict(scan_history)
+			scan_history_dict['initiated_by'] = MinimalUserSerializer(scan_history.initiated_by).data if scan_history.initiated_by else None
+			scan_history_dict['aborted_by'] = MinimalUserSerializer(scan_history.aborted_by).data if scan_history.aborted_by else None
+		return scan_history_dict
 
 	class Meta:
 		model = Vulnerability

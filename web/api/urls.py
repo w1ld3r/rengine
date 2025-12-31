@@ -1,32 +1,26 @@
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from django.urls import path
 from rest_framework import routers
+
 from .views import *
 
 app_name = 'api'
 router = routers.DefaultRouter()
-
 router.register(r'listDatatableSubdomain', SubdomainDatatableViewSet)
-
 router.register(r'listTargets', ListTargetsDatatableViewSet)
-
 router.register(r'listSubdomains', SubdomainsViewSet)
-
 router.register(r'listEndpoints', EndPointViewSet)
-
 router.register(r'listDirectories', DirectoryViewSet)
-
 router.register(r'listVulnerability', VulnerabilityViewSet)
-
 router.register(r'listInterestingSubdomains', InterestingSubdomainViewSet)
-
 router.register(r'listInterestingEndpoints', InterestingEndpointViewSet)
-
 router.register(r'listSubdomainChanges', SubdomainChangesViewSet)
-
 router.register(r'listEndPointChanges', EndPointChangesViewSet)
-
 router.register(r'listIps', IpAddressViewSet)
+router.register(r'listActivityLogs', ListActivityLogsViewSet)
+router.register(r'listScanLogs', ListScanLogsViewSet)
+router.register(r'notifications', InAppNotificationManagerViewSet, basename='notification')
+router.register(r'hackerone-programs', HackerOneProgramViewSet, basename='hackerone_program')
 
 urlpatterns = [
     url('^', include(router.urls)),
@@ -143,6 +137,14 @@ urlpatterns = [
         Whois.as_view(),
         name='whois'),
     path(
+        'tools/reverse/whois/',
+        ReverseWhois.as_view(),
+        name='reverse_whois'),
+    path(
+        'tools/domain_ip_history',
+        DomainIPHistory.as_view(),
+        name='domain_ip_history'),
+    path(
         'tools/cms_detector/',
         CMSDetector.as_view(),
         name='cms_detector'),
@@ -154,6 +156,14 @@ urlpatterns = [
         'tools/waf_detector/',
         WafDetector.as_view(),
         name='waf_detector'),
+    path(
+        'tools/gpt_vulnerability_report/',
+        LLMVulnerabilityReportGenerator.as_view(),
+        name='gpt_vulnerability_report_generator'),
+    path(
+        'tools/gpt_get_possible_attacks/',
+        GPTAttackSuggestion.as_view(),
+        name='gpt_get_possible_attacks'),
     path(
         'github/tool/get_latest_releases/',
         GithubToolCheckGetLatestRelease.as_view(),
@@ -170,6 +180,10 @@ urlpatterns = [
         'tool/uninstall/',
         UninstallTool.as_view(),
         name='uninstall_tool'),
+	path(
+        'tool/ollama/',
+        OllamaManager.as_view(),
+        name='ollama_manager'),
     path(
         'rengine/update/',
         RengineUpdateCheck.as_view(),
@@ -178,6 +192,10 @@ urlpatterns = [
         'action/subdomain/delete/',
         DeleteSubdomain.as_view(),
         name='delete_subdomain'),
+    path(
+        'action/vulnerability/delete/',
+        DeleteVulnerability.as_view(),
+        name='delete_vulnerability'),
     path(
         'action/rows/delete/',
         DeleteMultipleRows.as_view(),
@@ -189,7 +207,7 @@ urlpatterns = [
     path(
         'action/initiate/subtask/',
         InitiateSubTask.as_view(),
-        name='initiate_subtask'),
+        name='initiate_subscan'),
     path(
         'action/stop/scan/',
         StopScan.as_view(),
@@ -219,6 +237,15 @@ urlpatterns = [
         'scan_status/',
         ScanStatus.as_view(),
         name='scan_status'),
+    path(
+        'action/create/project',
+        CreateProjectApi.as_view(),
+        name='create_project'),
+    path(
+        'toggle-bug-bounty-mode/', 
+        ToggleBugBountyModeView.as_view(), 
+        name='toggle_bug_bounty_mode'
+    ),
 ]
 
 urlpatterns += router.urls

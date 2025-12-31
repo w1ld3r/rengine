@@ -1,5 +1,5 @@
 
-function populateTodofunction(){
+function populateTodofunction(project=null){
   $('.input-search').on('keyup', function() {
     var rex = new RegExp($(this).val(), 'i');
     $('.todo-box .todo-item').hide();
@@ -41,7 +41,7 @@ function populateTodofunction(){
       suppressScrollX : true
     });
 
-    populateScanHistory();
+    populateScanHistory(project=project);
 
   });
   const ps = new PerfectScrollbar('.todo-box-scroll', {
@@ -135,14 +135,19 @@ function populateTodofunction(){
       'description': $_taskDescriptionText
     }
 
-    if ($("#scanHistoryIDropdown").val() && $("#scanHistoryIDropdown").val() != 'Choose Scan History...') {
-      data['scan_history'] = parseInt($("#scanHistoryIDropdown").val());
-    }
+    // if ($("#scanHistoryIDropdown").val() && $("#scanHistoryIDropdown").val() != 'Choose Scan History...') {
+    //   data['scan_history'] = parseInt($("#scanHistoryIDropdown").val());
+    // }
 
     if ($("#subdomainDropdown").val() != 'Choose Subdomain...') {
-      data['subdomain'] = parseInt($("#subdomainDropdown").val());
+      data['subdomain_id'] = parseInt($("#subdomainDropdown").val());
     }
 
+    if (project) {
+      data['project'] = project;
+    }
+
+    console.log(data);
 
     fetch('/api/add/recon_note/', {
       method: 'post',
@@ -245,7 +250,7 @@ function deleteDropdown() {
       padding: '2em',
       showLoaderOnConfirm: true,
       preConfirm: function() {
-        return fetch('delete_note', {
+        return fetch('../delete_note', {
           method: 'POST',
           credentials: "same-origin",
           headers: {
@@ -300,7 +305,7 @@ function checkCheckbox() {
       $(this).parents('.todo-item').removeClass('todo-task-done');
     }
     new dynamicBadgeNotification('completedList');
-    fetch('flip_todo_status', {
+    fetch('../flip_todo_status', {
       method: 'post',
       headers: {
         "X-CSRFToken": getCookie("csrftoken")
@@ -341,7 +346,7 @@ function importantDropdown() {
       $("#important-badge-"+badge_id).empty();
     }
     new dynamicBadgeNotification('importantList');
-    fetch('flip_important_status', {
+    fetch('../flip_important_status', {
       method: 'post',
       headers: {
         "X-CSRFToken": getCookie("csrftoken")
@@ -371,11 +376,11 @@ function todoItem() {
   });
 }
 
-function populateScanHistory() {
+function populateScanHistory(project) {
   scan_history_select = document.getElementById('scanHistoryIDropdown');
-  $.getJSON(`/api/listScanHistory?format=json`, function(data) {
-    for (var history in data['scan_histories']){
-      history_object = data['scan_histories'][history];
+  $.getJSON(`/api/listScanHistory/?format=json&project=${project}`, function(data) {
+    for (var history in data){
+      history_object = data[history];
       var option = document.createElement('option');
       option.value = history_object['id'];
       option.innerHTML = history_object['domain']['name'] + ' - Scanned ' + moment.utc(history_object['start_scan_date']).fromNow();

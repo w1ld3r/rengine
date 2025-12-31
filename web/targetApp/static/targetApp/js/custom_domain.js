@@ -1,5 +1,5 @@
 function delete_target(id, domain_name) {
-  const delAPI = "../delete/target/"+id;
+  const delAPI = "../../delete/target/" + id;
   swal.queue([{
     title: 'Are you sure you want to delete '+ domain_name +'?',
     text: "You won't be able to revert this!",
@@ -45,7 +45,7 @@ function checkedCount () {
   return count;
 }
 
-function scanMultipleTargets() {
+function scanMultipleTargets(slug) {
   if (!checkedCount()) {
     swal({
       title: '',
@@ -57,38 +57,53 @@ function scanMultipleTargets() {
   else {
     // atleast one target is selected
     multipleScanForm = document.getElementById("multiple_targets_form");
-    multipleScanForm.action = '../../scan/start/multiple/';
+    multipleScanForm.action = `/scan/${slug}/start/multiple/`;
     multipleScanForm.submit();
   }
 }
 
-function deleteMultipleTargets() {
+function deleteMultipleTargets(slug) {
   if (!checkedCount()) {
-    swal({
+    Swal.fire({
       title: '',
-      text: "Oops! No targets has been selected!",
-      type: 'error',
+      text: "Oops! No targets have been selected!",
+      icon: 'error',
       padding: '2em'
-    })
-  }
-  else {
-    // atleast one target is selected
-    swal.queue([{
-      title: 'Are you sure you want to delete '+ checkedCount() +' targets?',
+    });
+  } else {
+    // At least one target is selected
+    Swal.fire({
+      title: 'Are you sure you want to delete ' + checkedCount() + ' targets?',
       text: "This action is irreversible.\nThis will also delete all the scan history and vulnerabilities related to the targets.",
-      type: 'warning',
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Delete',
       padding: '2em',
       showLoaderOnConfirm: true,
-      preConfirm: function() {
-        deleteForm = document.getElementById("multiple_targets_form");
-        deleteForm.action = "../delete/multiple";
-        deleteForm.submit();
+      preConfirm: () => {
+        return new Promise((resolve) => {
+          Swal.update({
+            title: '',
+            text: 'Deleting ' + checkedCount() + ' targets..., this may take a while.',
+            icon: 'warning',
+            showCancelButton: false,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+          });
+          
+          setTimeout(() => {
+            const deleteForm = document.getElementById("multiple_targets_form");
+            deleteForm.action = `/target/${slug}/delete/multiple`;
+            deleteForm.submit();
+          }, 500);  // 500ms delay
+        });
       }
-    }])
+    });
   }
 }
+
+
+
 
 function toggleMultipleTargetButton() {
   if (checkedCount() > 0) {
