@@ -102,7 +102,7 @@ if [ ! -d "/usr/src/github/EyeWitness" ]
 then
   echo "Cloning EyeWitness"
   git clone https://github.com/FortyNorthSecurity/EyeWitness /usr/src/github/EyeWitness
-  pushd /usr/src/github/EyeWitness && ./setup.sh; popd
+  pushd /usr/src/github/EyeWitness/setup && ./setup.sh; popd
 fi
 
 # clone theHarvester
