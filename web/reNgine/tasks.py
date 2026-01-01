@@ -474,7 +474,7 @@ def subdomain_discovery(
 
 			elif tool == 'oneforall':
 				cmd = f'python3 /usr/src/github/OneForAll/oneforall.py --target {host} run'
-				cmd_extract = f'cut -d\',\' -f6 /usr/src/github/OneForAll/results/{host.split(".")[:2]}.csv | tail -n +2 > {self.results_dir}/subdomains_oneforall.txt'
+				cmd_extract = f"cut -d ',' -f6 /usr/src/github/OneForAll/results/{host.split('.')[:2]}.csv | tail -n +2 > {self.results_dir}/subdomains_oneforall.txt"
 				cmd_rm = f'rm -rf /usr/src/github/OneForAll/results/{host}.csv'
 				cmd += f' && {cmd_extract} && {cmd_rm}'
 
