@@ -354,6 +354,37 @@ def get_http_urls(
 
 	return endpoints
 
+def get_ips_ports(
+		write_filepath=None,
+		ctx={}):
+	domain_id = ctx.get('domain_id')
+	scan_id = ctx.get('scan_history_id')
+	domain = Domain.objects.filter(pk=domain_id).first()
+	scan = ScanHistory.objects.filter(pk=scan_id).first()
+
+	subdomains = Subdomain.objects.all()
+	if domain:
+		subdomains = subdomains.filter(target_domain=domain)
+	if scan:
+		subdomains = subdomains.filter(scan_history=scan)
+	subdomains = subdomains.prefetch_related(
+		'ip_addresses__ports'
+	)
+	ips_ports = []
+	
+	for subdomain in subdomains:
+		for ip in subdomain.ip_addresses.all():
+			for port in ip.ports.all():
+				ips_ports.append(f"{subdomain.name}:{port.number}")
+
+	ips_ports = list(dict.fromkeys(ips_ports))
+
+	if write_filepath:
+		with open(write_filepath, 'w') as f:
+			f.write('\n'.join(ips_ports))
+
+	return ips_ports
+
 def get_interesting_endpoints(scan_history=None, target=None):
 	"""Get EndPoint objects matching InterestingLookupModel conditions.
 

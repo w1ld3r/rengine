@@ -2401,6 +2401,7 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 	# Config
 	config = self.yaml_configuration.get(VULNERABILITY_SCAN) or {}
 	input_path = f'{self.results_dir}/input_endpoints_vulnerability_scan.txt'
+	second_input_path = f'{self.results_dir}/input_subdomain_vulnerability_scan.txt'
 	enable_http_crawl = config.get(ENABLE_HTTP_CRAWL, DEFAULT_ENABLE_HTTP_CRAWL)
 	concurrency = config.get(NUCLEI_CONCURRENCY) or self.yaml_configuration.get(THREADS, DEFAULT_THREADS)
 	intensity = config.get(INTENSITY) or self.yaml_configuration.get(INTENSITY, DEFAULT_SCAN_INTENSITY)
@@ -2439,6 +2440,7 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 			write_filepath=input_path,
 			ctx=ctx
 		)
+	get_ips_ports(write_filepath=second_input_path)
 
 	if intensity == 'normal': # reduce number of endpoints to scan
 		unfurl_filter = f'{self.results_dir}/urls_unfurled.txt'
@@ -2487,6 +2489,7 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 	if formatted_headers:
 		cmd += formatted_headers
 	cmd += f' -l {input_path}'
+	cmd += f' -l {second_input_path}'
 	cmd += f' -c {str(concurrency)}' if concurrency > 0 else ''
 	cmd += f' -proxy {proxy} ' if proxy else ''
 	cmd += f' -retries {retries}' if retries > 0 else ''
