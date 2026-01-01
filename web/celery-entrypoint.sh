@@ -110,8 +110,10 @@ if [ ! -d "/usr/src/github/theHarvester" ]
 then
   echo "Cloning theHarvester"
   git clone https://github.com/laramies/theHarvester /usr/src/github/theHarvester
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  pushd /usr/src/github/theHarvester && uv sync; popd
+
 fi
-python3 -m pip install -r /usr/src/github/theHarvester/requirements/base.txt
 
 # clone vulscan
 if [ ! -d "/usr/src/github/scipag_vulscan" ]
