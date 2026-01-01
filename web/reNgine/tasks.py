@@ -195,8 +195,8 @@ def initiate_scan(
 			),
 			port_scan.si(ctx=ctx, description='Port scan'),
 			fetch_url.si(ctx=ctx, description='Fetch URL'),
+			dir_file_fuzz.si(ctx=ctx, description='Directories & files fuzz'),
 			group(
-				dir_file_fuzz.si(ctx=ctx, description='Directories & files fuzz'),
 				vulnerability_scan.si(ctx=ctx, description='Vulnerability scan'),
 				screenshot.si(ctx=ctx, description='Screenshot'),
 				waf_detection.si(ctx=ctx, description='WAF detection')

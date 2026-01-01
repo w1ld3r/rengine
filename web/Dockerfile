@@ -52,7 +52,8 @@ RUN apt install -y --no-install-recommends \
     curl \
     python3-netaddr \
     software-properties-common \
-    jq
+    jq \
+    chromium-chromedriver
 
 RUN add-apt-repository ppa:mozillateam/ppa
 
