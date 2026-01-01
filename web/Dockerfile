@@ -30,7 +30,8 @@ RUN apt update -y && \
     apt install -y \
     python3.10 \
     python3-dev \
-    python3-pip 
+    python3-pip \
+    python3-venv
 
 # Install essential packages
 RUN apt install -y --no-install-recommends \
@@ -53,10 +54,7 @@ RUN apt install -y --no-install-recommends \
     python3-netaddr \
     software-properties-common \
     jq \
-    chromium-chromedriver \
-    snap
-
-RUN snap install chromium
+    chromium-chromedriver
 
 RUN add-apt-repository ppa:mozillateam/ppa
 
