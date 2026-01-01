@@ -1053,9 +1053,9 @@ def theHarvester(config, host, scan_history_id, activity_id, results_dir, ctx={}
 	scan_history = ScanHistory.objects.get(pk=scan_history_id)
 	enable_http_crawl = config.get(ENABLE_HTTP_CRAWL, DEFAULT_ENABLE_HTTP_CRAWL)
 	output_path_json = f'{results_dir}/theHarvester.json'
-	theHarvester_dir = '/usr/src/github/theHarvester'
+	theHarvester_dir = '/root/.theHarvester'
 	history_file = f'{results_dir}/commands.txt'
-	cmd  = f'python3 {theHarvester_dir}/theHarvester.py -d {host} -b all -f {output_path_json}'
+	cmd  = f'$HOME/.local/bin/uv run theHarvester -d {host} -b all -f {output_path_json}'
 
 	# Update proxies.yaml
 	proxy_query = Proxy.objects.all()
@@ -1230,7 +1230,7 @@ def screenshot(self, ctx={}, description=None):
 	send_output_file = notification.send_scan_output_file if notification else False
 
 	# Run cmd
-	cmd = f'python3 /usr/src/github/EyeWitness/Python/EyeWitness.py -f {alive_endpoints_file} -d {screenshots_path} --no-prompt'
+	cmd = f'source /usr/src/github/EyeWitness/eyewitness-venv/bin/activate && python /usr/src/github/EyeWitness/Python/EyeWitness.py -f {alive_endpoints_file} -d {screenshots_path} --no-prompt'
 	cmd += f' --timeout {timeout}' if timeout > 0 else ''
 	cmd += f' --threads {threads}' if threads > 0 else ''
 	run_command(

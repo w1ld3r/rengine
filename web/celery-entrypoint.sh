@@ -111,7 +111,7 @@ then
   echo "Cloning theHarvester"
   git clone https://github.com/laramies/theHarvester /usr/src/github/theHarvester
   curl -LsSf https://astral.sh/uv/install.sh | sh
-  pushd /usr/src/github/theHarvester && uv sync; popd
+  pushd /usr/src/github/theHarvester && $HOME/.local/bin/uv sync; popd
 
 fi
 
