@@ -337,8 +337,6 @@ def get_http_urls(
 	if is_alive:
 		endpoints = [e for e in endpoints if e.is_alive]
 
-	logger.info(f"AAAAAAAA {endpoints}")
-
 	# Grab only http_url from endpoint objects
 	endpoints = [e.http_url for e in endpoints if is_valid_url(e.http_url)]
 	if ignore_files: # ignore all files
