@@ -53,8 +53,7 @@ RUN apt install -y --no-install-recommends \
     curl \
     python3-netaddr \
     software-properties-common \
-    jq \
-    chromium-chromedriver
+    jq
 
 RUN add-apt-repository ppa:mozillateam/ppa
 
@@ -116,11 +115,11 @@ RUN pip3 install --upgrade setuptools==72.1.0
 RUN pip3 install -r /tmp/requirements.txt --no-cache-dir
 
 # install eyewitness
-RUN pip3 install --no-cache-dir fuzzywuzzy \
-    selenium==4.9.1 \
-    python-Levenshtein \
-    pyvirtualdisplay \
-    netaddr
+# RUN pip3 install --no-cache-dir fuzzywuzzy \
+#     selenium>=4.29.0 \
+#     python-Levenshtein \
+#     pyvirtualdisplay \
+#     netaddr
 
 # Copy source code
 COPY . /usr/src/app/
