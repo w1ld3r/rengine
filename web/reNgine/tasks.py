@@ -2440,7 +2440,7 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 			write_filepath=input_path,
 			ctx=ctx
 		)
-	get_ips_ports(write_filepath=second_input_path)
+	get_ips_ports(write_filepath=second_input_path, ctx=ctx)
 
 	if intensity == 'normal': # reduce number of endpoints to scan
 		unfurl_filter = f'{self.results_dir}/urls_unfurled.txt'
