@@ -53,7 +53,10 @@ RUN apt install -y --no-install-recommends \
     python3-netaddr \
     software-properties-common \
     jq \
-    chromium-chromedriver
+    chromium-chromedriver \
+    snap
+
+RUN snap install chromium
 
 RUN add-apt-repository ppa:mozillateam/ppa
 
