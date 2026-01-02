@@ -23,7 +23,6 @@ router.register(r'notifications', InAppNotificationManagerViewSet, basename='not
 router.register(r'hackerone-programs', HackerOneProgramViewSet, basename='hackerone_program')
 
 urlpatterns = [
-    url('^', include(router.urls)),
     path(
         'add/target/',
         AddTarget.as_view(),
@@ -246,6 +245,7 @@ urlpatterns = [
         ToggleBugBountyModeView.as_view(), 
         name='toggle_bug_bounty_mode'
     ),
+    url('', include(router.urls)),
 ]
 
 urlpatterns += router.urls
