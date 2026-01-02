@@ -1230,7 +1230,13 @@ def screenshot(self, ctx={}, description=None):
 	send_output_file = notification.send_scan_output_file if notification else False
 
 	# Run cmd
-	cmd = f'source /usr/src/github/EyeWitness/eyewitness-venv/bin/activate && python /usr/src/github/EyeWitness/Python/EyeWitness.py -f {alive_endpoints_file} -d {screenshots_path} --no-prompt'
+	cmd = (
+		"/usr/src/github/EyeWitness/eyewitness-venv/bin/python "
+		"/usr/src/github/EyeWitness/Python/EyeWitness.py "
+		f"-f {alive_endpoints_file} "
+		f"-d {screenshots_path} "
+		"--no-prompt"
+	)
 	cmd += f' --timeout {timeout}' if timeout > 0 else ''
 	cmd += f' --threads {threads}' if threads > 0 else ''
 	run_command(
