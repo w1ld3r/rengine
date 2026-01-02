@@ -208,6 +208,10 @@ urlpatterns = [
         InitiateSubTask.as_view(),
         name='initiate_subscan'),
     path(
+        'action/start/scan/',
+        StartScan.as_view(),
+        name='start_scan'),
+    path(
         'action/stop/scan/',
         StopScan.as_view(),
         name='stop_scan'),

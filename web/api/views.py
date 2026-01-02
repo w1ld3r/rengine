@@ -964,6 +964,68 @@ class AddTarget(APIView):
 			'message': 'Failed to add as target !'
 		})
 
+class StartScan(APIView):
+    permission_classes = [HasPermission]
+    permission_required = PERM_INITATE_SCANS_SUBSCANS
+
+    def post(self, request):
+        data = request.data
+
+        domain_id = data.get("domain_id")
+        engine_id = data.get("engine_id")
+
+        if not domain_id or not engine_id:
+            return Response(
+                {
+                    "status": False,
+                    "message": "domain_id and engine_id are required"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        domain = get_object_or_404(Domain, id=domain_id)
+
+        imported_subdomains = data.get("imported_subdomains", [])
+        out_of_scope_subdomains = data.get("out_of_scope_subdomains", [])
+        starting_point_path = data.get("starting_point_path", "")
+        excluded_paths = data.get("excluded_paths", [])
+
+        if isinstance(excluded_paths, str):
+            excluded_paths = [p.strip() for p in excluded_paths.split(",") if p.strip()]
+
+        scan_history_id = create_scan_object(
+            host_id=domain.id,
+            engine_id=engine_id,
+            initiated_by_id=request.user.id
+        )
+
+        scan = ScanHistory.objects.get(pk=scan_history_id)
+
+        kwargs = {
+            "scan_history_id": scan.id,
+            "domain_id": domain.id,
+            "engine_id": engine_id,
+            "scan_type": LIVE_SCAN,
+            "results_dir": "/usr/src/scan_results",
+            "imported_subdomains": imported_subdomains,
+            "out_of_scope_subdomains": out_of_scope_subdomains,
+            "starting_point_path": starting_point_path,
+            "excluded_paths": excluded_paths,
+            "initiated_by_id": request.user.id,
+        }
+
+        initiate_scan.apply_async(kwargs=kwargs)
+        scan.save()
+
+        return Response(
+            {
+                "status": True,
+                "message": f"Scan started for {domain.name}",
+                "scan_history_id": scan.id,
+                "domain_id": domain.id,
+            },
+            status=status.HTTP_200_OK
+        )
 
 class FetchSubscanResults(APIView):
 	def get(self, request):
