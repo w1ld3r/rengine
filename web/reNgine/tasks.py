@@ -2487,15 +2487,18 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 		custom_nuclei_template_paths = [f'{str(elem)}.yaml' for elem in custom_nuclei_templates]
 		template = templates.extend(custom_nuclei_template_paths)
 
+	unfurl_filter = input_path
+	input_path = f'{self.results_dir}/input_all_vulnerability_scan.txt'
+
 	# Build CMD
-	cmd = 'nuclei -j'
+	cmd = f'cat {unfurl_filter} {second_input_path} | sort -u {input_path} && '
+	cmd += 'nuclei -j'
 	cmd += ' -config /root/.config/nuclei/config.yaml' if use_nuclei_conf else ''
 	cmd += f' -irr'
 	formatted_headers = ' '.join(f'-H "{header}"' for header in custom_headers)
 	if formatted_headers:
 		cmd += formatted_headers
 	cmd += f' -l {input_path}'
-	cmd += f' -l {second_input_path}'
 	cmd += f' -c {str(concurrency)}' if concurrency > 0 else ''
 	cmd += f' -proxy {proxy} ' if proxy else ''
 	cmd += f' -retries {retries}' if retries > 0 else ''
