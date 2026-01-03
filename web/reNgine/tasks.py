@@ -2490,7 +2490,7 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 	unfurl_filter = input_path
 	input_path = f'{self.results_dir}/input_all_vulnerability_scan.txt'
 
-	cmd_init = f'touch -f {input_path} && cat {unfurl_filter} {second_input_path} | sort -u {input_path}'
+	cmd_init = f'cat {unfurl_filter} {second_input_path} | sort -u -o {input_path}'
 	run_command(
 		cmd_init,
 		shell=True,
