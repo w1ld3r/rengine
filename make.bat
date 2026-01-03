@@ -3,7 +3,7 @@
 :: Credits: https://github.com/ninjhacks
 
 set COMPOSE_ALL_FILES  = -f docker-compose.yml
-set SERVICES           = db web proxy redis celery celery-beat ollama
+set SERVICES           = db web proxy redis celery celery-beat ollama bgbouncer
 
 :: Check if 'docker compose' command is available
 docker compose version >nul 2>&1

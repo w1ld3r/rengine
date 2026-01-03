@@ -7,7 +7,7 @@ include .env
 COMPOSE_PREFIX_CMD := COMPOSE_DOCKER_CLI_BUILD=1
 
 COMPOSE_ALL_FILES := -f docker-compose.yml
-SERVICES          := db web proxy redis celery celery-beat ollama
+SERVICES          := db web proxy redis celery celery-beat ollama pgbouncer
 
 # Check if 'docker compose' command is available, otherwise use 'docker-compose'
 DOCKER_COMPOSE := $(shell if command -v docker > /dev/null && docker compose version > /dev/null 2>&1; then echo "docker compose"; else echo "docker-compose"; fi)
