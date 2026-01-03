@@ -2490,9 +2490,16 @@ def nuclei_scan(self, urls=[], ctx={}, description=None):
 	unfurl_filter = input_path
 	input_path = f'{self.results_dir}/input_all_vulnerability_scan.txt'
 
+	cmd_init = f'touch -f {input_path} && cat {unfurl_filter} {second_input_path} | sort -u {input_path}'
+	run_command(
+		cmd_init,
+		shell=True,
+		history_file=self.history_file,
+		scan_id=self.scan_id,
+		activity_id=self.activity_id)
+	
 	# Build CMD
-	cmd = f'cat {unfurl_filter} {second_input_path} | sort -u {input_path} && '
-	cmd += 'nuclei -j'
+	cmd = 'nuclei -j'
 	cmd += ' -config /root/.config/nuclei/config.yaml' if use_nuclei_conf else ''
 	cmd += f' -irr'
 	formatted_headers = ' '.join(f'-H "{header}"' for header in custom_headers)
