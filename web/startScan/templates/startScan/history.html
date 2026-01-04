@@ -73,6 +73,13 @@ Quick Scan History
   <div class="col-12">
     <div class="card">
       <form method="POST" id="scan_history_form">
+        <select id="pageLengthSelect" class="form-select w-auto d-inline">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+        </select>
         {% csrf_token %}
         <table id="scan_history_table" class="table dt-responsive w-100">
           <thead>
