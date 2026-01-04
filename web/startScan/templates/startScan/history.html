@@ -78,15 +78,11 @@ Quick Scan History
             <label>
               Results :
               <select id="pageLengthSelect" class="form-select w-auto d-inline">
-                {% for size in "5,10,20,30,50".split(",") %}
-                  <option value="{{ size }}"
-                    {% if request.GET.nb_items|default:"20" == size %}
-                      selected
-                    {% endif %}
-                  >
-                    {{ size }}
-                  </option>
-                {% endfor %}
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
               </select>
             </label>
           </div>
