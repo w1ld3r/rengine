@@ -32,12 +32,18 @@ def scan_history(request, slug):
         .order_by('-start_scan_date')
     )
 
-    item_per_page = request.GET.get('nb_items', 20)
+    item_per_page = str(request.GET.get('nb_items', '20'))
     page_number = request.GET.get('page', 1)
+
     paginator = Paginator(qs, item_per_page)
     page_obj = paginator.get_page(page_number)
 
-    context = {'scan_history_active': 'active', "page_obj": page_obj}
+    context = {
+        'scan_history_active': 'active', 
+        'page_obj': page_obj,
+        'page_sizes': ['5', '10', '20', '30', '50'],
+        'current_page_size': item_per_page,
+        }
     return render(request, 'startScan/history.html', context)
 
 
