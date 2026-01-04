@@ -53,10 +53,24 @@ def scan_history(request, slug):
 
     total_pages = paginator.num_pages
     current = page_obj.number
-    window = 4
 
-    start = max(current - window, 1)
-    end = min(current + window, total_pages)
+    left = max(current - 1, 2)
+    right = min(current + 1, total_pages - 1)
+
+    page_range = []
+    page_range.append(1)
+
+    if left > 2:
+        page_range.append('…')
+
+    for num in range(left, right + 1):
+        page_range.append(num)
+
+    if right < total_pages - 1:
+        page_range.append('…')
+
+    if total_pages > 1:
+        page_range.append(total_pages)
 
     context = {
         'scan_history_active': 'active', 
@@ -64,9 +78,7 @@ def scan_history(request, slug):
         'paginator': paginator,
         'page_sizes': ['5', '10', '20', '30', '50'],
         'current_page_size': str(item_per_page),
-        'page_range': range(start, end + 1),
-        'show_first': start > 1,
-        'show_last': end < total_pages,
+        'page_range': page_range,
         'nb_items': item_per_page,
         }
     logger.info(context)

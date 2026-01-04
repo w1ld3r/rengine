@@ -272,35 +272,18 @@ Quick Scan History
                 {% endif %}
               </li>
 
-              {# First page #}
-              {% if show_first %}
-                <li class="page-item">
-                  <a class="page-link" href="?page=1&nb_items={{ nb_items }}">1</a>
-                </li>
-                <li class="page-item disabled">
-                  <span class="page-link">…</span>
-                </li>
-              {% endif %}
-
               {# Pages window #}
               {% for num in page_range %}
-                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                  <a class="page-link" href="?page={{ num }}&nb_items={{ nb_items }}">{{ num }}</a>
-                </li>
+                {% if num == '…' %}
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% else %}
+                  <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&nb_items={{ nb_items }}">
+                      {{ num }}
+                    </a>
+                  </li>
+                {% endif %}
               {% endfor %}
-
-              {# Last page #}
-              {% if show_last %}
-                <li class="page-item disabled">
-                  <span class="page-link">…</span>
-                </li>
-                <li class="page-item">
-                  <a class="page-link"
-                    href="?page={{ paginator.num_pages }}&nb_items={{ nb_items }}">
-                    {{ paginator.num_pages }}
-                  </a>
-                </li>
-              {% endif %}
 
               {# Next #}
               <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
