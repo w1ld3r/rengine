@@ -397,15 +397,15 @@ Quick Scan History
     });
     multiCheck(table);
 
-    document.getElementById('pageLengthSelect').addEventListener('change', function () {
-      const nbItems = this.value;
+    // document.getElementById('pageLengthSelect').addEventListener('change', function () {
+    //   const nbItems = this.value;
 
-      const url = new URL(window.location.href);
-      url.searchParams.set('nb_items', nbItems);
-      url.searchParams.set('page', 1);
+    //   const url = new URL(window.location.href);
+    //   url.searchParams.set('nb_items', nbItems);
+    //   url.searchParams.set('page', 1);
 
-      window.location.href = url.toString();
-    });
+    //   window.location.href = url.toString();
+    // });
 
     // filter organization populate
     $.getJSON(`/api/listOrganizations?&format=json`, function(data) {
