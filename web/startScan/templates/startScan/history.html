@@ -261,7 +261,7 @@ Quick Scan History
           justify-content-sm-end justify-content-center">
             <ul class="pagination justify-content-center">
               {# Previous #}
-              <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              <li class="page-item previous {% if not page_obj.has_previous %}disabled{% endif %}">
                 {% if page_obj.has_previous %}
                   <a class="page-link"
                     href="?page={{ page_obj.previous_page_number }}&nb_items={{ nb_items }}">
@@ -286,7 +286,7 @@ Quick Scan History
               {% endfor %}
 
               {# Next #}
-              <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              <li class="page-item next {% if not page_obj.has_next %}disabled{% endif %}">
                 {% if page_obj.has_next %}
                   <a class="page-link"
                     href="?page={{ page_obj.next_page_number }}&nb_items={{ nb_items }}">
