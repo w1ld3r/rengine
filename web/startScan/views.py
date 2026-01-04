@@ -25,6 +25,8 @@ from startScan.models import *
 from targetApp.models import *
 
 
+logger = logging.getLogger(__name__)
+
 def scan_history(request, slug):
     qs = (
         ScanHistory.objects
