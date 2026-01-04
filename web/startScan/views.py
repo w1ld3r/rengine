@@ -42,7 +42,7 @@ def scan_history(request, slug):
     except ValueError:
         page_number = 1
 
-    paginator = Paginator(qs, item_per_page)
+    paginator = Paginator(qs, str(item_per_page))
     try:
         page_obj = paginator.get_page(page_number)
     except (EmptyPage, PageNotAnInteger):
