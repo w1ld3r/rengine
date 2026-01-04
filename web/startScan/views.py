@@ -36,6 +36,7 @@ def scan_history(request, slug):
     page_number = request.GET.get('page', 1)
     paginator = Paginator(qs, item_per_page)
     page_obj = paginator.get_page(page_number)
+    logger.info(page_obj)
 
     context = {'scan_history_active': 'active', "page_obj": page_obj}
     return render(request, 'startScan/history.html', context)
