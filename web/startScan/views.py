@@ -1,4 +1,5 @@
 import markdown
+import logging
 
 from celery import group
 from weasyprint import HTML, CSS
@@ -28,6 +29,7 @@ from targetApp.models import *
 logger = logging.getLogger(__name__)
 
 def scan_history(request, slug):
+    logger.info("AAAAAAAAAAAAAAAA")
     qs = (
         ScanHistory.objects
         .filter(domain__project__slug=slug)
@@ -44,7 +46,8 @@ def scan_history(request, slug):
     except ValueError:
         page_number = 1
 
-    paginator = Paginator(qs, str(item_per_page))
+    paginator = Paginator(qs, item_per_page)
+    logger.info(paginator)
     try:
         page_obj = paginator.get_page(page_number)
     except (EmptyPage, PageNotAnInteger):
