@@ -216,34 +216,42 @@ Quick Scan History
                           href="javascript:show_scan_configuration('{{scan_history.cfg_starting_point_path}}', {{scan_history.cfg_out_of_scope_subdomains}}, {{scan_history.cfg_excluded_paths}}, {{scan_history.cfg_imported_subdomains}})"><i
                             class="fe-settings"></i>&nbsp;Show Configurations</a>
                         {% if user|can:'initiate_scans_subscans' %}
-                        {% if scan_history.scan_status == 0 or
-                        scan_history.scan_status == 2 or
-                        scan_history.scan_status == 3 %}
-                        <a class="dropdown-item text-primary"
-                          href="{% url 'start_scan' current_project.slug scan_history.domain.id %}?rescan=true&history_id={{ scan_history.id }}">
-                          <i class="fe-refresh-ccw"></i>&nbsp;Rescan
-                        </a>
+                        
+                          {% if scan_history.scan_status == 0 or
+                          scan_history.scan_status == 2 or
+                          scan_history.scan_status == 3 %}
+                            <a class="dropdown-item text-primary"
+                              href="{% url 'start_scan' current_project.slug scan_history.domain.id %}?rescan=true&history_id={{ scan_history.id }}">
+                              <i class="fe-refresh-ccw"></i>&nbsp;Rescan
+                            </a>
+                          {% endif %}
+
+                          {% if scan_history.scan_status == 1 or
+                          scan_history.scan_status == -1 %}
+                            <a href="#" class="dropdown-item text-danger"
+                              onclick="stop_scan(scan_id={{ scan_history.id }}, subscan_id=null, reload_scan_bar=false, reload_location=true)">
+                              <i class="fe-alert-triangle"></i>&nbsp;Stop Scan</a>
+                          {% endif %}
+
                         {% endif %}
 
-                        {% if scan_history.scan_status == 1 or
-                        scan_history.scan_status == -1 %}
-                        <a href="#" class="dropdown-item text-danger"
-                          onclick="stop_scan(scan_id={{ scan_history.id }}, subscan_id=null, reload_scan_bar=false, reload_location=true)">
-                          <i class="fe-alert-triangle"></i>&nbsp;Stop Scan</a>
-                        {% endif %}
-                        {% endif %}
                         {% if user|can:'modify_scan_results' %}
-                        {% if scan_history.scan_status == 2 or scan_history.scan_status == 3 or scan_history.scan_status
-                        == 0 %}
-                        <a href="#" class="dropdown-item text-danger" onclick="delete_scan('{{ scan_history.id }}')">
-                          <i class="fe-trash-2"></i>&nbsp;Delete Scan Results</a>
-                        {% endif %}
+                        
+                          {% if scan_history.scan_status == 2 or s
+                          can_history.scan_status == 3 or 
+                          scan_history.scan_status == 0 %}
+                            <a href="#" class="dropdown-item text-danger" onclick="delete_scan('{{ scan_history.id }}')">
+                              <i class="fe-trash-2"></i>&nbsp;Delete Scan Results</a>
+                          {% endif %}
+
                         <div class="dropdown-divider"></div>
+
                         {% endif %}
-                        {% if scan.scan_status != -1%}
-                        <a href="#" class="dropdown-item text-dark"
-                          onclick="initiate_report(id={{scan_history.id}}, has_subdomain_scan={% if 'subdomain_discovery' in scan_history.scan_type.tasks %}true{% else %}false{% endif %}, has_vulnerability_scan={% if 'vulnerability_scan' in scan_history.scan_type.tasks %}true{% else %}false{% endif %}, domain_name='{{ scan_history.domain.name }}')">
-                          <i class="fe-download"></i>&nbsp;Scan Report</a>
+
+                        {% if scan.scan_status != -1 %}
+                          <a href="#" class="dropdown-item text-dark"
+                            onclick="initiate_report(id={{scan_history.id}}, has_subdomain_scan={% if 'subdomain_discovery' in scan_history.scan_type.tasks %}true{% else %}false{% endif %}, has_vulnerability_scan={% if 'vulnerability_scan' in scan_history.scan_type.tasks %}true{% else %}false{% endif %}, domain_name='{{ scan_history.domain.name }}')">
+                            <i class="fe-download"></i>&nbsp;Scan Report</a>
                         {% endif %}
                       </div>
                     </div>
