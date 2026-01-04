@@ -73,6 +73,24 @@ Quick Scan History
   <div class="col-12">
     <div class="card">
       <form method="POST" id="scan_history_form">
+        <div class ="row">
+          <div class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center">
+            <label>
+              Results :
+              <select id="pageLengthSelect" class="form-select w-auto d-inline">
+                {% for size in "5,10,20,30,50".split(",") %}
+                  <option value="{{ size }}"
+                    {% if request.GET.nb_items|default:"20" == size %}
+                      selected
+                    {% endif %}
+                  >
+                    {{ size }}
+                  </option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+        </div>
         {% csrf_token %}
         <table id="scan_history_table" class="table dt-responsive w-100">
           <thead>
@@ -306,6 +324,7 @@ Quick Scan History
 <script>
   $(document).ready(function() {
     var table = $('#scan_history_table').DataTable({
+      paging: false,
       headerCallback: function(e, a, t, n, s) {
         e.getElementsByTagName("th")[0].innerHTML='<div class="form-check mb-2 form-check-primary"><input type="checkbox" class="float-start form-check-input chk-parent" id="head_checkbox" onclick=mainCheckBoxSelected(this)>\n<span class="new-control-indicator"></span><span style="visibility:hidden">c</span></div>\n'
       },
@@ -377,6 +396,16 @@ Quick Scan History
       }
     });
     multiCheck(table);
+
+    document.getElementById('pageLengthSelect').addEventListener('change', function () {
+      const nbItems = this.value;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('nb_items', nbItems);
+      url.searchParams.set('page', 1);
+
+      window.location.href = url.toString();
+    });
 
     // filter organization populate
     $.getJSON(`/api/listOrganizations?&format=json`, function(data) {
