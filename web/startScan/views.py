@@ -81,13 +81,8 @@ def scan_history(request, slug):
         'page_range': page_range,
         'nb_items': item_per_page,
         }
-    logger.info(context)
-    logger.info(dict(page_obj[0]))
-    try:
-        red = render(request, 'startScan/history.html', context)
-    except Exception as e:
-        logger.info(e)
-    return red
+
+    return render(request, 'startScan/history.html', context)
 
 
 def subscan_history(request, slug):
