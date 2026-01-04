@@ -82,6 +82,7 @@ def scan_history(request, slug):
         'nb_items': item_per_page,
         }
     logger.info(context)
+    logger.info(page_obj[0])
     try:
         red = render(request, 'startScan/history.html', context)
     except Exception as e:
