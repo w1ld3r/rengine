@@ -33,16 +33,28 @@ def scan_history(request, slug):
     )
 
     item_per_page = str(request.GET.get('nb_items', '20'))
-    page_number = request.GET.get('page', 1)
+    page_number = int(request.GET.get('page', 1))
 
     paginator = Paginator(qs, item_per_page)
     page_obj = paginator.get_page(page_number)
 
+    total_pages = paginator.num_pages
+    current = page_obj.number
+    window = 5
+
+    start = max(current - window, 1)
+    end = min(current + window, total_pages)
+
     context = {
         'scan_history_active': 'active', 
         'page_obj': page_obj,
+        'paginator': paginator,
         'page_sizes': ['5', '10', '20', '30', '50'],
-        'current_page_size': item_per_page,
+        'current_page_size': str(item_per_page),
+        'page_range': range(start, end + 1),
+        'show_first': start > 1,
+        'show_last': end < total_pages,
+        'nb_items': item_per_page,
         }
     return render(request, 'startScan/history.html', context)
 
