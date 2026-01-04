@@ -29,7 +29,6 @@ from targetApp.models import *
 logger = logging.getLogger(__name__)
 
 def scan_history(request, slug):
-    logger.info("AAAAAAAAAAAAAAAA")
     qs = (
         ScanHistory.objects
         .filter(domain__project__slug=slug)
@@ -47,7 +46,6 @@ def scan_history(request, slug):
         page_number = 1
 
     paginator = Paginator(qs, item_per_page)
-    logger.info(paginator)
     try:
         page_obj = paginator.get_page(page_number)
     except (EmptyPage, PageNotAnInteger):
@@ -71,7 +69,12 @@ def scan_history(request, slug):
         'show_last': end < total_pages,
         'nb_items': item_per_page,
         }
-    return render(request, 'startScan/history.html', context)
+    logger.info(context)
+    try:
+        red = render(request, 'startScan/history.html', context)
+    except Exception as e:
+        logger.info(e)
+    return red
 
 
 def subscan_history(request, slug):
