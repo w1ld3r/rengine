@@ -306,6 +306,7 @@ Quick Scan History
 <script>
   $(document).ready(function() {
     var table = $('#scan_history_table').DataTable({
+      paging: false,
       headerCallback: function(e, a, t, n, s) {
         e.getElementsByTagName("th")[0].innerHTML='<div class="form-check mb-2 form-check-primary"><input type="checkbox" class="float-start form-check-input chk-parent" id="head_checkbox" onclick=mainCheckBoxSelected(this)>\n<span class="new-control-indicator"></span><span style="visibility:hidden">c</span></div>\n'
       },
