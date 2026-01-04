@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django_celery_beat.models import (ClockedSchedule, IntervalSchedule, PeriodicTask)
 from rolepermissions.decorators import has_permission_decorator
 
@@ -32,11 +32,21 @@ def scan_history(request, slug):
         .order_by('-start_scan_date')
     )
 
-    item_per_page = str(request.GET.get('nb_items', '20'))
-    page_number = int(request.GET.get('page', 1))
+    try:
+        item_per_page = int(request.GET.get('nb_items', 20))
+    except ValueError:
+        item_per_page = 20
+
+    try:
+        page_number = int(request.GET.get('page', 1))
+    except ValueError:
+        page_number = 1
 
     paginator = Paginator(qs, item_per_page)
-    page_obj = paginator.get_page(page_number)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.get_page(1)
 
     total_pages = paginator.num_pages
     current = page_obj.number
