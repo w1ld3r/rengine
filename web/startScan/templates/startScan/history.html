@@ -90,7 +90,7 @@ Quick Scan History
             </tr>
           </thead>
           <tbody>
-            {% for scan_history in scan_history.all %}
+            {% for scan_history in page_obj %}
             <tr>
               <td class="checkbox-column"> {{ scan_history.id }} </td>
               <td class=""> {{ scan_history.id }} </td>

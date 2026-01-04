@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django_celery_beat.models import (ClockedSchedule, IntervalSchedule, PeriodicTask)
 from rolepermissions.decorators import has_permission_decorator
 
@@ -25,8 +26,18 @@ from targetApp.models import *
 
 
 def scan_history(request, slug):
-    host = ScanHistory.objects.filter(domain__project__slug=slug).order_by('-start_scan_date')
-    context = {'scan_history_active': 'active', "scan_history": host}
+    qs = (
+        ScanHistory.objects
+        .filter(domain__project__slug=slug)
+        .order_by('-start_scan_date')
+    )
+
+    item_per_page = request.GET.get('nb_items', 20)
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(qs, item_per_page)
+    page_obj = paginator.get_page(page_number)
+
+    context = {'scan_history_active': 'active', "page_obj": page_obj}
     return render(request, 'startScan/history.html', context)
 
 
