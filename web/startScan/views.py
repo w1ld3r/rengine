@@ -53,7 +53,7 @@ def scan_history(request, slug):
 
     total_pages = paginator.num_pages
     current = page_obj.number
-    window = 5
+    window = 4
 
     start = max(current - window, 1)
     end = min(current + window, total_pages)
