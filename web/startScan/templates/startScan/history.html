@@ -82,7 +82,7 @@ Quick Scan History
               Results :
               <select id="pageLengthSelect" class="form-select w-auto d-inline">
                 {% for size in page_sizes %}
-                <option value="{{ size }}" {% if current_page_size==size %} selected {% endif %}>
+                <option value="{{ size }}" {% if current_page_size == size %} selected {% endif %}>
                   {{ size }}
                 </option>
                 {% endfor %}
